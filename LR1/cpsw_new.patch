@@ -1,0 +1,116 @@
+--- a/drivers/net/ethernet/ti/cpsw_new.c
++++ b/drivers/net/ethernet/ti/cpsw_new.c
+@@ -374,10 +374,13 @@
+ 	/* mark skb for recycling */
+ 	skb_mark_for_recycle(skb);
+ 	netif_receive_skb(skb);
++
++        // Print incoming packet data
++        printk(KERN_INFO "Incoming packet data: %p, size: %d\n", skb->data, skb->len);
+  	
+-  	ndev->stats.rx_bytes += len;
+-  	ndev->stats.rx_packets++;
++ 	ndev->stats.rx_bytes += len;
++ 	ndev->stats.rx_packets++;
++
+  }
+  
+  
+@@ -788,7 +791,9 @@
+  
+  static int cpsw_ndo_stop(struct net_device *ndev)
+  {
++
+         printk(KERN_INFO "cpsw_ndo_stop called");
++
+  	struct cpsw_priv *priv = netdev_priv(ndev);
+  	struct cpsw_common *cpsw = priv->cpsw;
+  	struct cpsw_slave *slave;
+@@ -822,14 +827,18 @@
+  
+  	cpsw->usage_count--;
+  	pm_runtime_put_sync(cpsw->dev);
+- 	/* Print IO region information */
+-     printk(KERN_INFO "IO region: %lx, size: %d\n", ndev->base_addr, ndev->mem_end - ndev->base_addr);
++
++        // Print IO region information
++        printk(KERN_INFO "IO region: %lx, size: %d\n", ndev->base_addr, ndev->mem_end - ndev->base_addr);
++
+  	return 0;
+  }
+  
+  static int cpsw_ndo_open(struct net_device *ndev)
+  {
+- 	printk(KERN_INFO "cpsw_ndo_open called");
++
++        printk(KERN_INFO "cpsw_ndo_open called");
++
+  	struct cpsw_priv *priv = netdev_priv(ndev);
+  	struct cpsw_common *cpsw = priv->cpsw;
+  	int ret;
+@@ -943,13 +952,16 @@
+  	skb_tx_timestamp(skb);
+  	ret = cpdma_chan_submit(txch, skb, skb->data, skb->len,
+   				priv->emac_port);
+-+ 				
+- 	/* Print IO region information */
+-     printk(KERN_INFO "IO region: %lx, size: %d\n", ndev->base_addr, ndev->mem_end - ndev->base_addr);
+-+ 
+-     /* Print outgoing packet data */
+-     printk(KERN_INFO "Outgoing packet data: %p, size: %d\n", skb->data, skb->len);
+-  	if (unlikely(ret != 0)) {
++
++        // Print IO region information
++        printk(KERN_INFO "IO region: %lx, size: %d\n", ndev->base_addr, ndev->mem_end - ndev->base_addr);
++
++        // Print outgoing packet data
++        printk(KERN_INFO "Outgoing packet data: %p, size: %d\n", skb->data, skb->len);
++
++ 	if (unlikely(ret != 0)) {
++
+  		cpsw_err(priv, tx_err, "desc submit failed\n");
+  		goto fail;
+  }
+@@ -1857,7 +1869,9 @@
+  	struct clk *clk;
+  	int irq;
+  
+- 	printk(KERN_INFO "cpsw_probe called");
++
++        printk(KERN_INFO "cpsw_probe called");
++
+  		
+  	cpsw = devm_kzalloc(dev, sizeof(struct cpsw_common), GFP_KERNEL);
+  	if (!cpsw)
+@@ -1898,14 +1912,18 @@
+  		return irq;
+  	cpsw->irqs_table[0] = irq;
+  
+- 	printk(KERN_INFO "IRQ rx number: %d\n", irq);
++
++        printk(KERN_INFO "IRQ rx number: %d\n", irq);
++
+  
+  	irq = platform_get_irq_byname(pdev, "tx");
+  	if (irq < 0)
+  		return irq;
+  	cpsw->irqs_table[1] = irq;
+  
+- 	printk(KERN_INFO "IRQ tx number: %d\n", irq);
++
++        printk(KERN_INFO "IRQ tx number: %d\n", irq);
++
+  
+  	irq = platform_get_irq_byname(pdev, "misc");
+  	if (irq <= 0)
+@@ -1913,7 +1931,9 @@
+  		return irq;
+  	cpsw->misc_irq = irq;
+  
+- 	printk(KERN_INFO "IRQ misc number: %d\n", irq);
++
++        printk(KERN_INFO "IRQ misc number: %d\n", irq);
++
+  
+  	platform_set_drvdata(pdev, cpsw);
+  	/* This may be required here for child devices. */
